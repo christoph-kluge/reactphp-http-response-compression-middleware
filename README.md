@@ -1,5 +1,9 @@
 # ReactPHP Response Compression Middleware
 
+[![Build Status](https://travis-ci.org/christoph-kluge/reactphp-http-response-compression-middleware.svg?branch=master)](https://travis-ci.org/christoph-kluge/reactphp-http-response-compression-middleware)
+[![Total Downloads](https://poser.pugx.org/christoph-kluge/reactphp-http-response-compression-middleware/downloads)](https://packagist.org/packages/christoph-kluge/reactphp-http-response-compression-middleware)
+[![License](https://poser.pugx.org/christoph-kluge/reactphp-http-response-compression-middleware/license)](https://packagist.org/packages/christoph-kluge/reactphp-http-response-compression-middleware)
+
 # Install
 
 To install via [Composer](http://getcomposer.org/), use the command below, it will automatically detect the latest version and bind it with `^`.
