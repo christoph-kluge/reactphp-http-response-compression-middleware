@@ -27,6 +27,13 @@
         "phpunit/phpunit": "^4.8.10||^5.0",
         "react/http": "dev-master",
         "ringcentral/psr7": "^1.2"
+    },
+    "scripts": {
+        "ensure-installed": "composer install --ansi -n -q",
+        "unit": [
+            "@ensure-installed",
+            "phpunit --colors=always -c phpunit.xml.dist"
+        ]
     }
 
 }
