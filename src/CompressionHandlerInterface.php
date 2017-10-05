@@ -9,13 +9,15 @@ interface CompressionHandlerInterface
 {
 
     /**
+     * Should check if the request is compressible
      * @param ServerRequestInterface $request
      * @return boolean
      */
     public function compressible(ServerRequestInterface $request);
 
     /**
-     * Return the compression delegate token name (i.e. gzip, deflate, br, ...)
+     * Return the compression coding token (i.e. gzip, deflate, br, ...)
+     * @see https://tools.ietf.org/html/rfc7230#section-4.2
      * @return string
      */
     public function __toString();
