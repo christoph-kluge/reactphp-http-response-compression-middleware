@@ -17,10 +17,10 @@ This middleware will detect if the request is compressible and will compress the
 # Usage
 
 ```php
-$server = new Server(new \React\Http\MiddlewareRunner([
-    new \Sikei\React\Http\Middleware\ResponseCompressionMiddleware([
-        new \Sikei\React\Http\Middleware\CompressionGzipHandler(),
-        new \Sikei\React\Http\Middleware\CompressionDeflateHandler(),
+$server = new Server(new MiddlewareRunner([
+    new ResponseCompressionMiddleware([
+        new CompressionGzipHandler(),
+        new CompressionDeflateHandler(),
     ]),
     function (ServerRequestInterface $request, callable $next) {
         return new Response(200, ['Content-Type' => 'application/json'], json_encode([

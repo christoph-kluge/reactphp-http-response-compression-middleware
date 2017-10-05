@@ -3,16 +3,20 @@
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\Factory;
 use React\Http\Response;
+use React\Http\MiddlewareRunner;
+use Sikei\React\Http\Middleware\ResponseCompressionMiddleware;
+use Sikei\React\Http\Middleware\CompressionGzipHandler;
+use Sikei\React\Http\Middleware\CompressionDeflateHandler;
 use React\Http\Server;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $loop = Factory::create();
 
-$server = new Server(new \React\Http\MiddlewareRunner([
-    new \Sikei\React\Http\Middleware\ResponseCompressionMiddleware([
-        new \Sikei\React\Http\Middleware\CompressionGzipHandler(),
-        new \Sikei\React\Http\Middleware\CompressionDeflateHandler(),
+$server = new Server(new MiddlewareRunner([
+    new ResponseCompressionMiddleware([
+        new CompressionGzipHandler(),
+        new CompressionDeflateHandler(),
     ]),
     function (ServerRequestInterface $request, callable $next) {
         return new Response(200, ['Content-Type' => 'application/json'], json_encode([
