@@ -15,8 +15,8 @@ $loop = Factory::create();
 
 $server = new Server(new MiddlewareRunner([
     new ResponseCompressionMiddleware([
-        new CompressionGzipHandler(),
-        new CompressionDeflateHandler(),
+        new CompressionGzipHandler($loop),
+        new CompressionDeflateHandler($loop),
     ]),
     function (ServerRequestInterface $request, callable $next) {
         return new Response(200, ['Content-Type' => 'application/json'], json_encode([

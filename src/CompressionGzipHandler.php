@@ -2,12 +2,23 @@
 
 namespace Sikei\React\Http\Middleware;
 
+use Clue\React\Zlib\ZlibFilterStream;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use React\EventLoop\LoopInterface;
 use React\Http\HttpBodyStream;
+use React\Stream\ReadableResourceStream;
+use React\Stream\ThroughStream;
 
 class CompressionGzipHandler implements CompressionHandlerInterface
 {
+
+    protected $loop;
+
+    public function __construct(LoopInterface $loop)
+    {
+        $this->loop = $loop;
+    }
 
     public function compressible(ServerRequestInterface $request)
     {
@@ -21,19 +32,19 @@ class CompressionGzipHandler implements CompressionHandlerInterface
         return 'gzip';
     }
 
-    public function __invoke(StreamInterface $stream, $mime)
+    public function __invoke(StreamInterface $body, $mime)
     {
-        if (!$stream->isWritable()) {
-            return $stream;
+        if (!$body->isReadable()) {
+            return $body;
         }
 
-        if ($stream instanceof HttpBodyStream) {
-            return $stream;
-        }
+        $in = new ReadableResourceStream($body->detach(), $this->loop);
+        $out = new ThroughStream();
 
-        $content = $stream->getContents();
-        $content = gzencode($content, -1, FORCE_GZIP);
+        $compressor = ZlibFilterStream::createGzipCompressor(1);
 
-        return \RingCentral\Psr7\stream_for($content);
+        $in->pipe($compressor)->pipe($out);
+
+        return new HttpBodyStream($out, null);
     }
 }
