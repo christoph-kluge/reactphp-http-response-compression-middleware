@@ -5,6 +5,7 @@ use React\EventLoop\Factory;
 use React\Http\MiddlewareRunner;
 use React\Http\Response;
 use React\Http\Server;
+use React\Stream\ThroughStream;
 use Sikei\React\Http\Middleware\ResponseCompressionMiddleware;
 use Sikei\React\Http\Middleware\CompressionGzipHandler;
 use Sikei\React\Http\Middleware\CompressionDeflateHandler;
@@ -18,11 +19,20 @@ $server = new Server(new MiddlewareRunner([
         new CompressionGzipHandler(),
         new CompressionDeflateHandler(),
     ]),
-    function (ServerRequestInterface $request, callable $next) {
-        return new Response(200, ['Content-Type' => 'application/json'], json_encode([
-            'some' => 'nice',
-            'json' => 'values',
-        ]));
+    function (ServerRequestInterface $request, callable $next) use ($loop) {
+        $stream = new ThroughStream();
+        $loop->addTimer(0.001, function () use ($stream) {
+            $stream->write('{');
+            $stream->write('"some": "nice",');
+        });
+
+        $loop->addTimer(0.002, function () use ($stream) {
+            $stream->write('"json": "values"');
+            $stream->write('}');
+            $stream->end();
+        });
+
+        return new Response(200, ['Content-Type' => 'application/json'], $stream);
     },
 ]));
 
