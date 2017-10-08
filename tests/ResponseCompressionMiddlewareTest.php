@@ -1,15 +1,14 @@
 <?php
 
-namespace Sikei\React\Http\Middleware;
+namespace Sikei\React\Tests\Http\Middleware;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
 use React\Http\Response;
 use React\Http\ServerRequest;
 use React\Promise\Promise;
 use React\Promise\PromiseInterface;
-use function RingCentral\Psr7\stream_for;
+use Sikei\React\Http\Middleware\ResponseCompressionMiddleware;
 
 class ResponseCompressionMiddlewareTest extends TestCase
 {
@@ -47,7 +46,7 @@ class ResponseCompressionMiddlewareTest extends TestCase
         $token = 'custom';
         $return = 'compressed';
         $middleware = new ResponseCompressionMiddleware([
-            $this->getCustomCompressionHandler($token, $return),
+            new CompressionHandlerStub($token, $return)
         ]);
 
         /** @var PromiseInterface $result */
@@ -75,7 +74,7 @@ class ResponseCompressionMiddlewareTest extends TestCase
         $token = 'custom';
         $return = 'compressed';
         $middleware = new ResponseCompressionMiddleware([
-            $this->getCustomCompressionHandler($token, $return),
+            new CompressionHandlerStub($token, $return)
         ]);
 
         /** @var PromiseInterface $result */
@@ -142,37 +141,6 @@ class ResponseCompressionMiddlewareTest extends TestCase
             return new Promise(function ($resolve, $reject) use ($request, &$response) {
                 return $resolve($response);
             });
-        };
-    }
-
-    public function getCustomCompressionHandler($token, $invoke)
-    {
-        return new class ($token, $invoke) implements CompressionHandlerInterface
-        {
-
-            protected $token;
-            protected $response;
-
-            public function __construct($token, $response)
-            {
-                $this->token = $token;
-                $this->response = $response;
-            }
-
-            public function compressible(ServerRequestInterface $request)
-            {
-                return stristr($request->getHeaderLine('Accept-Encoding'), (string)$this) !== false;
-            }
-
-            public function __toString()
-            {
-                return $this->token;
-            }
-
-            public function __invoke(StreamInterface $stream, $mime)
-            {
-                return stream_for($this->response);
-            }
         };
     }
 
