@@ -47,7 +47,7 @@ class ResponseCompressionMiddlewareTest extends TestCase
         $token = 'custom';
         $return = 'compressed';
         $middleware = new ResponseCompressionMiddleware([
-            $this->getCustomCompressionHandler($token, $return)
+            $this->getCustomCompressionHandler($token, $return),
         ]);
 
         /** @var PromiseInterface $result */
@@ -72,11 +72,10 @@ class ResponseCompressionMiddlewareTest extends TestCase
             'Content-Length' => strlen($content),
         ], $content);
 
-
         $token = 'custom';
         $return = 'compressed';
         $middleware = new ResponseCompressionMiddleware([
-            $this->getCustomCompressionHandler($token, $return)
+            $this->getCustomCompressionHandler($token, $return),
         ]);
 
         /** @var PromiseInterface $result */
