@@ -4,10 +4,12 @@ namespace Sikei\React\Http\Middleware;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use React\Http\Response;
 use React\Http\ServerRequest;
 use React\Promise\Promise;
 use React\Promise\PromiseInterface;
+use function RingCentral\Psr7\stream_for;
 
 class ResponseCompressionMiddlewareTest extends TestCase
 {
@@ -32,19 +34,20 @@ class ResponseCompressionMiddlewareTest extends TestCase
         $this->assertSame($content, $response->getBody()->getContents());
     }
 
-    public function testCompressWhenGzipHeadersArePresent()
+    public function testCompressHandlerIsCalledWhenHeadersArePresent()
     {
-        $this->markTestSkipped('This should implement a stub and move specific handler into own tests');
-
-        $content = 'Some response';
-        $request = new ServerRequest('GET', 'https://example.com/', ['Accept-Encoding' => 'gzip, deflate, br']);
+        $content = 'not-compressed';
+        $request = new ServerRequest('GET', 'https://example.com/', ['Accept-Encoding' => 'gzip, deflate, br, custom']);
         $response = new Response(200, [
             'Content-Type'   => 'text/html',
             'Content-Length' => strlen($content),
         ], $content);
 
+
+        $token = 'custom';
+        $return = 'compressed';
         $middleware = new ResponseCompressionMiddleware([
-            new CompressionGzipHandler(),
+            $this->getCustomCompressionHandler($token, $return)
         ]);
 
         /** @var PromiseInterface $result */
@@ -56,11 +59,36 @@ class ResponseCompressionMiddlewareTest extends TestCase
         $this->assertNotNull($response);
         $this->assertInstanceOf('React\Http\Response', $response);
         $this->assertTrue($response->hasHeader('Content-Encoding'));
-        $this->assertSame('gzip', $response->getHeaderLine('Content-Encoding'));
-        $this->assertSame($content, $this->gzdecode(
-            $response->getBody()->getContents(),
-            $response->getHeaderLine('Content-Length')
-        ));
+        $this->assertSame($token, $response->getHeaderLine('Content-Encoding'));
+        $this->assertSame($return, $response->getBody()->getContents());
+    }
+
+    public function testCompressHandlerIsNotCalledWhenHeadersArePresent()
+    {
+        $content = 'not-compressed';
+        $request = new ServerRequest('GET', 'https://example.com/', ['Accept-Encoding' => 'gzip, deflate, br']);
+        $response = new Response(200, [
+            'Content-Type'   => 'text/html',
+            'Content-Length' => strlen($content),
+        ], $content);
+
+
+        $token = 'custom';
+        $return = 'compressed';
+        $middleware = new ResponseCompressionMiddleware([
+            $this->getCustomCompressionHandler($token, $return)
+        ]);
+
+        /** @var PromiseInterface $result */
+        $result = $middleware($request, $this->getNextCallback($response));
+        $result->then(function ($value) use (&$response) {
+            $response = $value;
+        });
+
+        $this->assertNotNull($response);
+        $this->assertInstanceOf('React\Http\Response', $response);
+        $this->assertFalse($response->hasHeader('Content-Encoding'));
+        $this->assertSame($content, $response->getBody()->getContents());
     }
 
     public function testMiddlewareSkipWhenGzipIsNotSupportedByClient()
@@ -115,6 +143,37 @@ class ResponseCompressionMiddlewareTest extends TestCase
             return new Promise(function ($resolve, $reject) use ($request, &$response) {
                 return $resolve($response);
             });
+        };
+    }
+
+    public function getCustomCompressionHandler($token, $invoke)
+    {
+        return new class ($token, $invoke) implements CompressionHandlerInterface
+        {
+
+            protected $token;
+            protected $response;
+
+            public function __construct($token, $response)
+            {
+                $this->token = $token;
+                $this->response = $response;
+            }
+
+            public function compressible(ServerRequestInterface $request)
+            {
+                return stristr($request->getHeaderLine('Accept-Encoding'), (string)$this) !== false;
+            }
+
+            public function __toString()
+            {
+                return $this->token;
+            }
+
+            public function __invoke(StreamInterface $stream, $mime)
+            {
+                return stream_for($this->response);
+            }
         };
     }
 
