@@ -12,7 +12,7 @@ To install via [Composer](http://getcomposer.org/), use the command below, it wi
 composer require christoph-kluge/reactphp-http-response-compression-middleware
 ```
 
-This middleware will detect if the request is compressible and will compress the response body and add relevant headers to it. Heavy lifting is done by (clue/php-zlib-react)[https://github.com/clue/php-zlib-react], thanks!
+This middleware will detect if the request is compressible and will compress the response body and add relevant headers to it. Heavy lifting is done by [clue/php-zlib-react](https://github.com/clue/php-zlib-react), thanks!
 
 # Usage
 
