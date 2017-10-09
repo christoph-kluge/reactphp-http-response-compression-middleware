@@ -6,6 +6,7 @@ use Clue\React\Zlib\ZlibFilterStream;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use React\Http\HttpBodyStream;
+use React\Stream\ReadableStreamInterface;
 
 class CompressionDeflateHandler implements CompressionHandlerInterface
 {
@@ -24,11 +25,7 @@ class CompressionDeflateHandler implements CompressionHandlerInterface
 
     public function __invoke(StreamInterface $body, $mime)
     {
-        if (!$body->isReadable()) {
-            return $body;
-        }
-
-        if ($body instanceof HttpBodyStream) {
+        if ($body instanceof ReadableStreamInterface) {
             return new HttpBodyStream($body->pipe(
                 ZlibFilterStream::createDeflateCompressor(1)
             ), null);

@@ -56,7 +56,7 @@ class CompressionDeflateHandlerTest extends TestCase
             $compressBuffer .= $data;
         });
 
-        $this->assertInstanceOf('React\Http\HttpBodyStream', $body);
+        $this->assertInstanceOf('React\Stream\ReadableStreamInterface', $body);
 
         $decompressor = ZlibFilterStream::createDeflateDecompressor();
         $decompressor->on('data', function ($data) use (&$decompressBuffer) {
