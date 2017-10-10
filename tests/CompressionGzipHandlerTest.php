@@ -32,7 +32,7 @@ class CompressionGzipHandlerTest extends TestCase
             'Accept-Encoding' => 'gzip',
         ]);
 
-        $this->assertTrue($this->handler->compressible($request));
+        $this->assertTrue($this->handler->canHandle($request));
     }
 
     public function testHandlerCannotHandleClientsCompressionMethods()
@@ -41,7 +41,7 @@ class CompressionGzipHandlerTest extends TestCase
             'Accept-Encoding' => 'some-other',
         ]);
 
-        $this->assertFalse($this->handler->compressible($request));
+        $this->assertFalse($this->handler->canHandle($request));
     }
 
     public function testHandlerWillCompressHttpBodyStream()

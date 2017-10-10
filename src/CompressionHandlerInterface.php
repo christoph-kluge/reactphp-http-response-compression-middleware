@@ -9,11 +9,18 @@ interface CompressionHandlerInterface
 {
 
     /**
-     * Should check if the request is compressible
+     * Check if the request can be handled by this
      * @param ServerRequestInterface $request
      * @return boolean
      */
-    public function compressible(ServerRequestInterface $request);
+    public function canHandle(ServerRequestInterface $request);
+
+    /**
+     * Checks wether a mime-type can be compressed
+     * @param string $mime
+     * @return mixed
+     */
+    public function isCompressible($mime);
 
     /**
      * Return the compression coding token (i.e. gzip, deflate, br, ...)
@@ -25,8 +32,7 @@ interface CompressionHandlerInterface
     /**
      * Invocation should attach an compressor to the stream and return the stream resource
      * @param StreamInterface $stream
-     * @param string          $mime
      * @return StreamInterface
      */
-    public function __invoke(StreamInterface $stream, $mime);
+    public function __invoke(StreamInterface $stream);
 }

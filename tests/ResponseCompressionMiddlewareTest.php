@@ -46,7 +46,7 @@ class ResponseCompressionMiddlewareTest extends TestCase
         $token = 'custom';
         $return = 'compressed';
         $middleware = new ResponseCompressionMiddleware([
-            new CompressionHandlerStub($token, $return)
+            new CompressionHandlerStub($token, $return, true)
         ]);
 
         /** @var PromiseInterface $result */
@@ -74,7 +74,7 @@ class ResponseCompressionMiddlewareTest extends TestCase
         $token = 'custom';
         $return = 'compressed';
         $middleware = new ResponseCompressionMiddleware([
-            new CompressionHandlerStub($token, $return)
+            new CompressionHandlerStub($token, $return, true)
         ]);
 
         /** @var PromiseInterface $result */

@@ -12,14 +12,21 @@ class CompressionHandlerStub implements CompressionHandlerInterface
 
     protected $token;
     protected $response;
+    protected $compressible;
 
-    public function __construct($token, $response)
+    public function __construct($token, $response, $compressible)
     {
         $this->token = $token;
         $this->response = $response;
+        $this->compressible = $compressible;
     }
 
-    public function compressible(ServerRequestInterface $request)
+    public function isCompressible($mime)
+    {
+        return (bool)$this->compressible;
+    }
+
+    public function canHandle(ServerRequestInterface $request)
     {
         return stristr($request->getHeaderLine('Accept-Encoding'), (string)$this) !== false;
     }
@@ -29,7 +36,7 @@ class CompressionHandlerStub implements CompressionHandlerInterface
         return $this->token;
     }
 
-    public function __invoke(StreamInterface $stream, $mime)
+    public function __invoke(StreamInterface $stream)
     {
         return stream_for($this->response);
     }

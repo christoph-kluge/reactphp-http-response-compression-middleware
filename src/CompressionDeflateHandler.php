@@ -11,11 +11,16 @@ use React\Stream\ReadableStreamInterface;
 class CompressionDeflateHandler implements CompressionHandlerInterface
 {
 
-    public function compressible(ServerRequestInterface $request)
+    public function canHandle(ServerRequestInterface $request)
     {
         $accept = $request->getHeaderLine('Accept-Encoding');
 
         return stristr($accept, $this->__toString()) !== false;
+    }
+
+    public function isCompressible($mime)
+    {
+        return true;
     }
 
     public function __toString()
@@ -23,7 +28,7 @@ class CompressionDeflateHandler implements CompressionHandlerInterface
         return 'deflate';
     }
 
-    public function __invoke(StreamInterface $body, $mime)
+    public function __invoke(StreamInterface $body)
     {
         if ($body instanceof ReadableStreamInterface) {
             return new HttpBodyStream($body->pipe(

@@ -32,7 +32,7 @@ class CompressionDeflateHandlerTest extends TestCase
             'Accept-Encoding' => 'deflate',
         ]);
 
-        $this->assertTrue($this->handler->compressible($request));
+        $this->assertTrue($this->handler->canHandle($request));
     }
 
     public function testHandlerCannotHandleClientsCompressionMethods()
@@ -41,7 +41,7 @@ class CompressionDeflateHandlerTest extends TestCase
             'Accept-Encoding' => 'some-other',
         ]);
 
-        $this->assertFalse($this->handler->compressible($request));
+        $this->assertFalse($this->handler->canHandle($request));
     }
 
     public function testHandlerWillCompressHttpBodyStream()
@@ -50,7 +50,7 @@ class CompressionDeflateHandlerTest extends TestCase
 
         $stream = new ThroughStream();
         $body = new HttpBodyStream($stream, null);
-        $body = $this->handler->__invoke($body, 'application/text');
+        $body = $this->handler->__invoke($body);
 
         $body->on('data', function ($data) use (&$compressBuffer) {
             $compressBuffer .= $data;
@@ -77,7 +77,7 @@ class CompressionDeflateHandlerTest extends TestCase
         $content = 'My test string';
 
         $body = stream_for($content);
-        $body = $this->handler->__invoke($body, 'application/text');
+        $body = $this->handler->__invoke($body);
 
         $this->assertInstanceOf('RingCentral\Psr7\Stream', $body);
         $compressed = $body->getContents();
