@@ -31,6 +31,54 @@ $server = new Server(new MiddlewareRunner([
 ]));
 ```
 
+# Response-detection for compressible mime/content-types
+
+## Default detection
+
+The default handlers will use by default the `DefaultRegexDetecor` to identify compressible Content-Types by a set of regular expressions. Those regular expressions are:
+
+```php
+// DefaultRegexDetector.php -> used in __construct()
+
+new RegexDetector([
+    '/^text\/[a-z-\+]+$/', // text/*
+    '/^application\/json$/', // application/json
+    '/^application\/xml$/', // application/xml
+    '/^[a-z-\+]+\/[a-z-\+]+\+json$/', // */*+json
+    '/^[a-z-\+]+\/[a-z-\+]+\+xml$/', // */*+xml
+]);
+```
+
+## Available Detectors
+
+There are currently the following available detectors:
+
+* `ArrayDetector`: Which will accept an whitelist of mime-types to check against
+* `RegexDetecor`: Which will accept an whitelist of regular expressions to check against
+
+```php
+new CompressionGzipHandler(new ArrayDetector[
+    'text/html',
+]),
+new CompressionGzipHandler(new RegexDetector[
+    '/^text\/[a-z]+$/',
+]),
+```
+
+## Want ot implement custom detectors?
+
+If you would like to add a custom detection for the response mime type then you can simply pass an object as first parameter which implements the `MimeDetectorInterface`.
+
+```php
+new CompressionGzipHandler(new class implements MimeDetectorInterface {
+    public function isCompressible($mime) {
+        // your custom magic here..
+        return true;
+    }
+}),
+
+```
+
 # License
 
 The MIT License (MIT)
