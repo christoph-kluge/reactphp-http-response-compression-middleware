@@ -2,9 +2,11 @@
 
 namespace Sikei\React\Http\Middleware;
 
+use Clue\React\Zlib\ZlibFilterStream;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use React\Http\HttpBodyStream;
+use React\Stream\ReadableStreamInterface;
 
 class CompressionDeflateHandler implements CompressionHandlerInterface
 {
@@ -13,7 +15,7 @@ class CompressionDeflateHandler implements CompressionHandlerInterface
     {
         $accept = $request->getHeaderLine('Accept-Encoding');
 
-        return stristr($accept, 'deflate') !== false;
+        return stristr($accept, $this->__toString()) !== false;
     }
 
     public function __toString()
@@ -21,19 +23,16 @@ class CompressionDeflateHandler implements CompressionHandlerInterface
         return 'deflate';
     }
 
-    public function __invoke(StreamInterface $stream, $mime)
+    public function __invoke(StreamInterface $body, $mime)
     {
-        if (!$stream->isWritable()) {
-            return $stream;
+        if ($body instanceof ReadableStreamInterface) {
+            return new HttpBodyStream($body->pipe(
+                ZlibFilterStream::createDeflateCompressor(1)
+            ), null);
         }
 
-        if ($stream instanceof HttpBodyStream) {
-            return $stream;
-        }
-
-        $content = $stream->getContents();
-        $content = gzencode($content, -1, FORCE_DEFLATE);
-
-        return \RingCentral\Psr7\stream_for($content);
+        return \RingCentral\Psr7\stream_for(
+            gzencode($body->getContents(), -1, FORCE_DEFLATE)
+        );
     }
 }
