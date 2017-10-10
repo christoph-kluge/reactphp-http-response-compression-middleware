@@ -7,9 +7,17 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use React\Http\HttpBodyStream;
 use React\Stream\ReadableStreamInterface;
+use Sikei\React\Http\Middleware\Detector\DefaultRegexDetector;
 
 class CompressionGzipHandler implements CompressionHandlerInterface
 {
+
+    protected $detector;
+
+    public function __construct(MimeDetectorInterface $detector = null)
+    {
+        $this->detector = $detector ?: new DefaultRegexDetector();
+    }
 
     public function canHandle(ServerRequestInterface $request)
     {
@@ -20,7 +28,7 @@ class CompressionGzipHandler implements CompressionHandlerInterface
 
     public function isCompressible($mime)
     {
-        return true;
+        return $this->detector->isCompressible($mime);
     }
 
     public function __toString()
