@@ -52,18 +52,23 @@ final class ResponseCompressionMiddleware
             if (!$response->hasHeader('Content-Type')) {
                 return $response;
             }
+
+            // response mime-type is not compressible
             $mime = $response->getHeaderLine('Content-Type');
+            if (!$compressor->isCompressible($mime)) {
+                return $response;
+            }
 
             return $response
                 ->withHeader('Content-Encoding', (string)$compressor)
-                ->withBody($compressor($response->getBody(), $mime));
+                ->withBody($compressor($response->getBody()));
         });
     }
 
     private function getCompressor(ServerRequestInterface $request)
     {
         foreach ($this->compressors as $compressor) {
-            if ($compressor->compressible($request)) {
+            if ($compressor->canHandle($request)) {
                 return $compressor;
             }
         }
