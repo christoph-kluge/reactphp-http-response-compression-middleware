@@ -65,7 +65,7 @@ new CompressionGzipHandler(new RegexDetector[
 ]),
 ```
 
-## Want ot implement custom detectors?
+## Want to implement custom detectors?
 
 If you would like to add a custom detection for the response mime type then you can simply pass an object as first parameter which implements the `MimeDetectorInterface`.
 
