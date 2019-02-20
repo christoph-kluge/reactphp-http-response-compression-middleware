@@ -34,8 +34,9 @@ final class ResponseCompressionMiddleware
         if (!$compressor) {
             return $next($request);
         }
-
-        return $next($request)->then(function (Response $response) use ($compressor) {
+		
+        $response = \React\Promise\resolve($next($request));
+        return $response->then(function (Response $response) use ($compressor) {
             // response got already encoded
             if ($response->hasHeader('Content-Encoding')) {
                 return $response;
