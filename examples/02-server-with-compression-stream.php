@@ -2,7 +2,6 @@
 
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\Factory;
-use React\Http\Io\MiddlewareRunner;
 use React\Http\Response;
 use React\Http\Server;
 use React\Stream\ThroughStream;
@@ -14,12 +13,12 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $loop = Factory::create();
 
-$server = new Server(new MiddlewareRunner([
+$server = new Server([
     new ResponseCompressionMiddleware([
         new CompressionGzipHandler(),
         new CompressionDeflateHandler(),
     ]),
-    function (ServerRequestInterface $request, callable $next) use ($loop) {
+    function (ServerRequestInterface $request) use ($loop) {
         $stream = new ThroughStream();
         $loop->addTimer(0.001, function () use ($stream) {
             $stream->write('{');
@@ -34,7 +33,7 @@ $server = new Server(new MiddlewareRunner([
 
         return new Response(200, ['Content-Type' => 'application/json'], $stream);
     },
-]));
+]);
 
 $socket = new \React\Socket\Server(isset($argv[1]) ? $argv[1] : '0.0.0.0:0', $loop);
 $server->listen($socket);
