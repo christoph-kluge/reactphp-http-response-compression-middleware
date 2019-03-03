@@ -5,7 +5,7 @@ namespace Sikei\React\Tests\Http\Middleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
-use React\Http\ServerRequest;
+use React\Http\Io\ServerRequest;
 use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 use Sikei\React\Http\Middleware\ResponseCompressionMiddleware;
