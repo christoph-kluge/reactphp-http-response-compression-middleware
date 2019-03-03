@@ -24,7 +24,7 @@ final class ResponseCompressionMiddleware
         }
     }
 
-    public function __invoke(ServerRequestInterface $request, $next)
+    public function __invoke(ServerRequestInterface $request, callable $next)
     {
         if (!$request->hasHeader('Accept-Encoding')) {
             return $next($request);
@@ -35,7 +35,8 @@ final class ResponseCompressionMiddleware
             return $next($request);
         }
 
-        return $next($request)->then(function (Response $response) use ($compressor) {
+        $response = \React\Promise\resolve($next($request));
+        return $response->then(function (Response $response) use ($compressor) {
             // response got already encoded
             if ($response->hasHeader('Content-Encoding')) {
                 return $response;
