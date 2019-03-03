@@ -5,10 +5,9 @@ namespace Sikei\React\Http\Middleware;
 use Clue\React\Zlib\ZlibFilterStream;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
-use React\Http\HttpBodyStream;
+use React\Http\Io\HttpBodyStream;
 use React\Stream\ReadableStreamInterface;
 use Sikei\React\Http\Middleware\Detector\DefaultRegexDetector;
-use Sikei\React\Http\Middleware\Detector\RegexDetector;
 
 class CompressionDeflateHandler implements CompressionHandlerInterface
 {

@@ -4,8 +4,8 @@ namespace Sikei\React\Tests\Http\Middleware;
 
 use Clue\React\Zlib\ZlibFilterStream;
 use PHPUnit\Framework\TestCase;
-use React\Http\HttpBodyStream;
-use React\Http\ServerRequest;
+use React\Http\Io\HttpBodyStream;
+use React\Http\Io\ServerRequest;
 use React\Stream\ThroughStream;
 use function RingCentral\Psr7\stream_for;
 use Sikei\React\Http\Middleware\CompressionGzipHandler;

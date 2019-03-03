@@ -2,7 +2,7 @@
 
 use Psr\Http\Message\ServerRequestInterface;
 use React\EventLoop\Factory;
-use React\Http\MiddlewareRunner;
+use React\Http\Io\MiddlewareRunner;
 use React\Http\Response;
 use React\Http\Server;
 use Sikei\React\Http\Middleware\ResponseCompressionMiddleware;
@@ -28,6 +28,11 @@ $server = new Server(new MiddlewareRunner([
 
 $socket = new \React\Socket\Server(isset($argv[1]) ? $argv[1] : '0.0.0.0:0', $loop);
 $server->listen($socket);
+
+$server->on('error', function(Exception $error) {
+    echo get_class($error) . ' - ' . $error->getMessage() . PHP_EOL;
+    echo get_class($error->getPrevious()) . ' - ' . $error->getPrevious()->getMessage() . PHP_EOL;
+});
 
 echo 'Listening on ' . str_replace('tcp:', 'http:', $socket->getAddress()) . PHP_EOL;
 
